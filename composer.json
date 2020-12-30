@@ -1,0 +1,25 @@
+{
+    "name": "istepaniuk/systemd-calendar-check",
+    "description": "Check systemd OnCalendar syntax",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "authors": [
+        {
+            "name": "Ivan Stepaniuk",
+            "email": "me@istepaniuk.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SystemdCalendarCheck\\" : "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SystemdCalendarCheck\\Tests\\" : "tests/"
+        }
+    },
+    "require": {}
+}
