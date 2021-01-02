@@ -37,6 +37,17 @@ final class CalendarValidatorTests extends TestCase
         self::assertTrue($this->calendarValidator->isValid("2030-30-03 12:30"));
     }
 
+    public function test_it_does_not_accept_date_and_time_without_space()
+    {
+        self::assertFalse($this->calendarValidator->isValid("2030-30-0312:30"));
+    }
+
+    public function test_it_does_not_accept_weekdays_and_date_without_space()
+    {
+        self::assertFalse($this->calendarValidator->isValid("Mon2030-30-03"));
+    }
+
+
     public function test_it_accepts_the_normalized_form_of_specific_date_and_time_with_seconds()
     {
         self::assertTrue($this->calendarValidator->isValid("2030-30-03 12:30:00"));
@@ -101,6 +112,12 @@ final class CalendarValidatorTests extends TestCase
         self::assertTrue($this->calendarValidator->isValid("2030-02-01   04:01"));
     }
 
+    public function test_it_does_not_accept_dates_with_too_many_digits()
+    {
+        self::assertTrue($this->calendarValidator->isValid("2030-02-1234"));
+        self::assertTrue($this->calendarValidator->isValid("2030124-123402-12451212"));
+    }
+
     public function test_it_accepts_patterns_with_wildcards_on_dates()
     {
         self::assertTrue($this->calendarValidator->isValid("*-*-* 04:01"));
@@ -152,6 +169,7 @@ final class CalendarValidatorTests extends TestCase
     public function test_it_accepts_weekday_sets()
     {
         self::assertTrue($this->calendarValidator->isValid("Mon,Fri"));
+        self::assertFalse($this->calendarValidator->isValid("MonFri"));
     }
 
     public function test_it_accepts_weekdays_without_dates_or_times()

@@ -16,94 +16,59 @@ final class CalendarValidator
         $matches = [];
         $isFullMatch = preg_match(
             "/
+            (?(DEFINE)
+               (?<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)
+               (?<integer_or_range>
+                   \d+                                 # value
+                   (\.\.\d+(?!\d))?                    # range
+                   (\/\d+)?                            # repetition
+                   (,(?=\d))?                          # comma if there is more
+               )
+
+               (?<float_or_range>
+                   \d+                                 # seconds
+                   (.\d+)?                             # fractional
+                   (\.\.\d+(.\d+)?(?!\d))?             # range
+                   (\/\d+(.\d+)?)?                     # repetition
+                   (,(?=\d))?                          # comma if there is more
+               )
+
+               (?<list_of_integer_ranges_or_a_star>
+                    (?&integer_or_range)* | \*
+               )
+
+               (?<list_of_float_ranges_or_a_star>
+                    (?&float_or_range)* | \*
+               )
+            )
             ^
             (
                 (annually|minutely|hourly|daily|monthly|weekly|yearly|quarterly|semiannually)
                 |
                 (?P<weekdays>
                     (                        
-                        (monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)
-                        (\.\.(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun))?
+                        \b
+                        (?&weekday)(\.\.(?&weekday))?
                         ,?
                     )*
                 )?
                 (?P<dates>
-                    [ ]?                                        # space
-                    (?P<year>
-                        (
-                            \d{1,4}                             # year digits
-                            (\/\d+)?                            # repetition
-                            (,(?=\d))?                          # comma if more
-                        )*
-                        -
-                        | \*                                    # or asterisk
-                        -
-                    )?                                         
-                    (?P<month>
-                        (
-                            \d{1,2}
-                            (\.\.\d{1,2}(?!\d))?                # range
-                            (\/\d+)?                            # repetition
-                            (,(?=\d))?                          # comma if more
-                        )* 
-                        | \*                                    # or asterisk
-                    )
-                    [-~]                                        # - or ~
-                    (?P<day>
-                        (
-                            \d{1,2}
-                            (\.\.\d{1,2}(?!\d))?                # range
-                            (\/\d+)?                            # repetition
-                            (,(?=\d))?                          # comma if more
-                        )*
-                        | \*                                    # or asterisk
-                    )
+                    (?:[ ]|^)
+                    (?P<years> (?&list_of_integer_ranges_or_a_star) - )?
+                    (?P<months> (?&list_of_integer_ranges_or_a_star))
+                    [-~]
+                    (?P<days> (?&list_of_integer_ranges_or_a_star))
                 )?
+                (?:[ ]|$|^)
                 (?P<times>
-                    [ ]?                                        # space
-                    (?P<hours>
-                        (
-                            \d{1,2}                             # hours
-                            (\.\.\d{1,2}(?!\d))?                # range
-                            (\/\d+)?                            # repetition
-                            (,(?=\d))?                          # comma if more
-                        )*   
-                        |
-                        \*                                      # or asterisk
-                    )
+                    (?P<hours> (?&list_of_integer_ranges_or_a_star))
                     :
-                    (?P<minutes>
-                        (
-                            \d{1,2}                             # minutes
-                            (\.\.\d{1,2}(?!\d))?                # range
-                            (\/\d+)?                            # repetition
-                            (,(?=\d))?                          # comma if more
-                        )*
-                        |
-                        \*
-                    )
-                    (?P<seconds>
-                        :
-                        (
-                            (
-                                (
-                                    \d{1,2}                     # seconds
-                                    (.\d+)?                     # fractional
-                                    (\.\.\d{1,2}(.\d+)?(?!\d))? # range
-                                )
-                                (\/\d+(.\d+)?)?                 # repetition
-                                (,(?=\d))?                      # comma if more
-                            )*   
-                            |
-                            \*                                  # or asterisk
-                        )
-                    )?
+                    (?P<minutes> (?&list_of_integer_ranges_or_a_star))
+                    (?P<seconds> : (?&list_of_float_ranges_or_a_star))?
                 )?
             )?
-            (?P<timezone>
-                [ ]
-                .+
-            )?
+            (?:[ ]|$)
+            (?P<timezone> .+)?
             $
             /xi",
             $pattern,
